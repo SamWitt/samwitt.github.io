@@ -442,29 +442,14 @@ const openers = {
     const win = makeWindow({ title: 'Publishers', tpl: 'tpl-publishers', x: 220, y: 200, w: 440 });
     if (typeof initPublishersWindow === 'function') initPublishersWindow(win);
     return win;
+  },
+
+  solitaire: () => {
+    const win = makeWindow({ title: 'Solitaire', tpl: 'tpl-solitaire', x: 280, y: 140, w: 780 });
+    if (typeof initSolitaireWindow === 'function') initSolitaireWindow(win);
+    return win;
   }
 };
-
-
-
-// Sticky Notes
-function createNote({x=260,y=100,w=220,h=160,text='New note…'}={}){
-  const note = document.createElement('div');
-  note.className='sticky-note';
-  note.style.left=x+'px'; note.style.top=y+'px'; note.style.width=w+'px'; note.style.height=h+'px';
-  note.innerHTML = '<div class="close" title="Delete">✕</div><div class="body" contenteditable="true">'+text+'</div>';
-  desktop.appendChild(note);
-  // drag (not when typing)
-  let drag=false, ox=0, oy=0;
-  note.addEventListener('mousedown', e=>{ if(e.target.closest('.body')||e.target.closest('.close')) return; drag=true; ox=e.clientX-note.offsetLeft; oy=e.clientY-note.offsetTop; e.preventDefault();
-    const mv=(e)=>{ if(!drag) return; note.style.left=e.clientX-ox+'px'; note.style.top=e.clientY-oy+'px'; };
-    const up=()=>{ drag=false; window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); };
-    window.addEventListener('mousemove', mv); window.addEventListener('mouseup', up);
-  });
-  note.querySelector('.close').addEventListener('click', ()=> note.remove());
-  return note;
-}
-
 // Icon drag + dblclick handlers
 document.querySelectorAll('.icon').forEach(icon => {
   let dragging=false, moved=false, offsetX=0, offsetY=0;
@@ -546,13 +531,11 @@ document.querySelectorAll('.icon').forEach(icon => {
   });
   icon.addEventListener('dblclick', e=>{
     if(moved) return;
-    if(icon.classList.contains('sticky')){ createNote(); return; }
     const name = [...icon.classList].find(c=> openers[c]);
     if(name) openers[name]();
   });
   icon.addEventListener('keydown', e=>{
     if(e.key==='Enter'){
-      if(icon.classList.contains('sticky')){ createNote(); return; }
       const name = [...icon.classList].find(c=> openers[c]);
       if(name) openers[name]();
     }
@@ -611,7 +594,7 @@ tick(); setInterval(tick, 1000);
   desktop.addEventListener('pointerdown', (e)=>{
     if(e.pointerType==='mouse' && e.button!==0) return;
     if(pointerId!==null) return;
-    if(e.target.closest('.icon, .window, .sticky-note, .taskbar, #startMenu')) return;
+    if(e.target.closest('.icon, .window, .taskbar, #startMenu')) return;
     pointerId=e.pointerId;
     startX=e.clientX; startY=e.clientY;
     shiftPressed=e.shiftKey;
@@ -662,7 +645,6 @@ startMenu.addEventListener('click', (e)=>{
   const item = e.target.closest('.item'); if(!item) return;
   const op = item.getAttribute('data-open');
   if(op && openers[op]){ openers[op](); toggleStart(false); return; }
-  if(item.getAttribute('data-sticky')==='new'){ createNote(); toggleStart(false); return; }
   if(item.getAttribute('data-cmd')==='closeAll'){
     document.querySelectorAll('.window').forEach(w=>w.remove());
     document.querySelectorAll('.task-btn').forEach(b=>b.remove());
