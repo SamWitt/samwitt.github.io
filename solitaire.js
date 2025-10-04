@@ -201,13 +201,59 @@
       }
       const content = win.querySelector('.content');
       const width = content ? content.clientWidth : board.clientWidth;
-      const gapAllowance = 6 * 16; // approximate padding/gaps
-      const available = Math.max(width - gapAllowance, 320);
-      const cardWidth = Math.max(64, Math.min(120, Math.floor(available / 9)));
-      metrics.cardWidth = cardWidth;
-      metrics.cardHeight = Math.round(cardWidth * 1.4);
+      const boardStyles = window.getComputedStyle(board);
+      const paddingLeft = parseFloat(boardStyles.paddingLeft) || 0;
+      const paddingRight = parseFloat(boardStyles.paddingRight) || 0;
+      const tableau = board.querySelector('.solitaire-tableau');
+      const tableauStyles = tableau ? window.getComputedStyle(tableau) : null;
+      const gapCandidate = tableauStyles?.columnGap || tableauStyles?.gap || boardStyles.getPropertyValue('--solitaire-gap');
+      let defaultGap = parseFloat(gapCandidate);
+      if(!Number.isFinite(defaultGap)){
+        defaultGap = 16;
+      }
+      const minGap = 6;
+      const availableWidth = Math.max(width - paddingLeft - paddingRight, 0);
+
+      if(availableWidth <= 0){
+        metrics.cardWidth = 0;
+        metrics.cardHeight = 0;
+        metrics.tableauFaceUpOffset = 0;
+        metrics.tableauFaceDownOffset = 0;
+        board.style.setProperty('--solitaire-gap', '0px');
+        applyMetrics();
+        return;
+      }
+
+      const ratio = metrics.cardWidth > 0 ? defaultGap / metrics.cardWidth : defaultGap / 88;
+      let cardWidth = Math.floor(availableWidth / (TABLEAU_COUNT + (TABLEAU_COUNT - 1) * ratio));
+      if(!Number.isFinite(cardWidth) || cardWidth < 1){
+        cardWidth = Math.floor((availableWidth - minGap * (TABLEAU_COUNT - 1)) / TABLEAU_COUNT);
+      }
+      if(!Number.isFinite(cardWidth) || cardWidth < 1){
+        cardWidth = Math.max(0, Math.floor(availableWidth / TABLEAU_COUNT));
+      }
+      cardWidth = Math.min(120, Math.max(0, cardWidth));
+
+      let gap;
+      if(TABLEAU_COUNT > 1){
+        const leftover = Math.max(availableWidth - cardWidth * TABLEAU_COUNT, 0);
+        const allowedGap = leftover / (TABLEAU_COUNT - 1);
+        if(allowedGap >= minGap){
+          gap = Math.max(minGap, Math.min(defaultGap, allowedGap));
+        } else {
+          gap = Math.max(0, allowedGap);
+        }
+      } else {
+        gap = 0;
+      }
+
+      const cardsSpace = Math.max(availableWidth - gap * (TABLEAU_COUNT - 1), 0);
+      const adjustedCardWidth = Math.max(0, Math.min(cardWidth, Math.floor(cardsSpace / TABLEAU_COUNT)));
+      metrics.cardWidth = adjustedCardWidth;
+      metrics.cardHeight = Math.round(adjustedCardWidth * 1.4);
       metrics.tableauFaceUpOffset = Math.round(metrics.cardHeight * 0.32);
       metrics.tableauFaceDownOffset = Math.round(metrics.cardHeight * 0.18);
+      board.style.setProperty('--solitaire-gap', `${gap}px`);
       applyMetrics();
     }
 
