@@ -48,7 +48,7 @@ body{margin:0; font:14px/1 "Jersey 20", sans-serif; color:var(--text); backgroun
 }
 .icon .label {
   color:#fff;            /* 👈 white text (hard to see on yellow) */
-  font-family:"Atomic Age", cursive;
+  font-family:"Honk", "Atomic Age", "Segoe UI", sans-serif;
   font-size:22px;
   text-shadow:1px 1px 0 #000;
   text-align:center;
