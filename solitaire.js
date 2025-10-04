@@ -371,14 +371,14 @@
 
     function stopDrag(){
       if(!dragState) return;
-      const { sourceCardEl, pointerId } = dragState;
-      if(sourceCardEl && sourceCardEl.hasPointerCapture?.(pointerId)){
+      const { sourceCardEl, pointerId, listenersTarget, captureActive } = dragState;
+      if(captureActive && sourceCardEl && sourceCardEl.hasPointerCapture?.(pointerId)){
         sourceCardEl.releasePointerCapture(pointerId);
       }
-      if(sourceCardEl){
-        sourceCardEl.removeEventListener('pointermove', onPointerMove);
-        sourceCardEl.removeEventListener('pointerup', onPointerUp);
-        sourceCardEl.removeEventListener('pointercancel', onPointerCancel);
+      if(listenersTarget){
+        listenersTarget.removeEventListener('pointermove', onPointerMove);
+        listenersTarget.removeEventListener('pointerup', onPointerUp);
+        listenersTarget.removeEventListener('pointercancel', onPointerCancel);
       }
       dragState.ghost?.remove();
       dragState = null;
@@ -419,6 +419,21 @@
       if(!moving.every(c => c.faceUp)) return;
 
       const rect = card.element.getBoundingClientRect();
+      let captureActive = false;
+      if(typeof card.element.setPointerCapture === 'function'){
+        try {
+          card.element.setPointerCapture(e.pointerId);
+          captureActive = card.element.hasPointerCapture?.(e.pointerId);
+          if(captureActive === undefined){
+            captureActive = true;
+          }
+        } catch(err){
+          captureActive = false;
+        }
+      }
+
+      const listenersTarget = captureActive ? card.element : window;
+
       dragState = {
         pointerId: e.pointerId,
         sourceType,
@@ -428,13 +443,14 @@
         offsetX: e.clientX - rect.left,
         offsetY: e.clientY - rect.top,
         ghost: createGhost(moving),
-        sourceCardEl: card.element
+        sourceCardEl: card.element,
+        listenersTarget,
+        captureActive
       };
       updateGhostPosition(dragState, e.clientX, e.clientY);
-      card.element.setPointerCapture?.(e.pointerId);
-      card.element.addEventListener('pointermove', onPointerMove);
-      card.element.addEventListener('pointerup', onPointerUp);
-      card.element.addEventListener('pointercancel', onPointerCancel);
+      listenersTarget.addEventListener('pointermove', onPointerMove);
+      listenersTarget.addEventListener('pointerup', onPointerUp);
+      listenersTarget.addEventListener('pointercancel', onPointerCancel);
       e.preventDefault();
     }
 
