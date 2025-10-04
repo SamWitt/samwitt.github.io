@@ -32,9 +32,9 @@
   <img src="assets/img/Contact1.png" alt="" />
   <div class="label">Contact</div>
 </div>
-<div class="icon sticky" tabindex="0" role="button" aria-label="Sticky Notes">
-  <img src="assets/img/Stickynotes.png" alt="" /> 
-  <div class="label">Sticky Notes </div> 
+<div class="icon solitaire" tabindex="0" role="button" aria-label="Solitaire">
+  <img src="assets/img/Stickynotes.png" alt="" />
+  <div class="label">Solitaire</div>
 </div>
 <div class="icon publishers" tabindex="0" role="button" aria-label="Publishers">
   <img src="assets/img/vinyl.png" alt="" />
@@ -71,8 +71,8 @@
     <span>Publishers</span>
   </div>
   <div class="hr" role="separator"></div>
-  <div class="item" role="menuitem" data-sticky="new">
-    <span>New Sticky Note</span>
+  <div class="item" role="menuitem" data-open="solitaire">
+    <span>Play Solitaire</span>
   </div>
   <div class="item" role="menuitem" data-cmd="closeAll">
     <span>Close All Windows</span>
@@ -527,6 +527,43 @@
   </section>
 </template>
 
+<template id="tpl-solitaire">
+  <section class="content-section solitaire" aria-labelledby="solitaire-heading">
+    <header class="solitaire-toolbar">
+      <div class="solitaire-heading">
+        <h2 id="solitaire-heading">Solitaire</h2>
+        <p class="solitaire-instructions">Draw cards from the stock, build descending stacks on the tableau, and send cards to the foundations in ascending order.</p>
+      </div>
+      <div class="solitaire-actions" role="group" aria-label="Solitaire controls">
+        <button type="button" class="solitaire-btn restart">Restart</button>
+        <button type="button" class="solitaire-btn undo" disabled>Undo</button>
+      </div>
+    </header>
+    <div class="solitaire-status" role="status" aria-live="polite">Good luck!</div>
+    <div class="solitaire-board" role="group" aria-label="Solitaire board">
+      <div class="solitaire-row solitaire-row--top">
+        <div class="pile pile-stock" data-pile="stock" tabindex="0" role="button" aria-label="Stock pile. Press Enter or Space to draw a card."></div>
+        <div class="pile pile-waste" data-pile="waste" tabindex="0" role="group" aria-label="Waste pile"></div>
+        <div class="solitaire-foundations" role="group" aria-label="Foundation piles">
+          <div class="pile pile-foundation" data-pile="foundation-0" tabindex="0" role="group" aria-label="Foundation pile one"></div>
+          <div class="pile pile-foundation" data-pile="foundation-1" tabindex="0" role="group" aria-label="Foundation pile two"></div>
+          <div class="pile pile-foundation" data-pile="foundation-2" tabindex="0" role="group" aria-label="Foundation pile three"></div>
+          <div class="pile pile-foundation" data-pile="foundation-3" tabindex="0" role="group" aria-label="Foundation pile four"></div>
+        </div>
+      </div>
+      <div class="solitaire-row solitaire-row--tableau" role="group" aria-label="Tableau piles">
+        <div class="pile pile-tableau" data-pile="tableau-0" tabindex="0" aria-label="Tableau pile one"></div>
+        <div class="pile pile-tableau" data-pile="tableau-1" tabindex="0" aria-label="Tableau pile two"></div>
+        <div class="pile pile-tableau" data-pile="tableau-2" tabindex="0" aria-label="Tableau pile three"></div>
+        <div class="pile pile-tableau" data-pile="tableau-3" tabindex="0" aria-label="Tableau pile four"></div>
+        <div class="pile pile-tableau" data-pile="tableau-4" tabindex="0" aria-label="Tableau pile five"></div>
+        <div class="pile pile-tableau" data-pile="tableau-5" tabindex="0" aria-label="Tableau pile six"></div>
+        <div class="pile pile-tableau" data-pile="tableau-6" tabindex="0" aria-label="Tableau pile seven"></div>
+      </div>
+    </div>
+  </section>
+</template>
+
 <template id="tpl-contact">
   <section class="content-section contact" aria-labelledby="contact-heading">
     <h2 id="contact-heading">Let&apos;s Collaborate</h2>
@@ -545,5 +582,6 @@
 
 
 <script src="script.js" defer></script>
+<script src="solitaire.js" defer></script>
 </body>
 </html>
