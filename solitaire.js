@@ -1,0 +1,493 @@
+(function(){
+  const SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
+  const SUIT_SYMBOLS = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
+  const SUIT_LABELS = { hearts: 'Hearts', diamonds: 'Diamonds', clubs: 'Clubs', spades: 'Spades' };
+  const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  const RANK_LABELS = {
+    A: 'Ace', '2': 'Two', '3': 'Three', '4': 'Four', '5': 'Five', '6': 'Six', '7': 'Seven',
+    '8': 'Eight', '9': 'Nine', '10': 'Ten', J: 'Jack', Q: 'Queen', K: 'King'
+  };
+
+  const COLOR_MAP = { hearts: 'red', diamonds: 'red', clubs: 'black', spades: 'black' };
+  const FOUNDATION_COUNT = 4;
+  const TABLEAU_COUNT = 7;
+
+  function shuffle(array){
+    for(let i=array.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function createDeck(){
+    let id = 0;
+    const deck = [];
+    for(const suit of SUITS){
+      for(let i=0;i<RANKS.length;i++){
+        const rank = RANKS[i];
+        deck.push({
+          id: `card-${id++}`,
+          suit,
+          rank,
+          value: i + 1,
+          color: COLOR_MAP[suit],
+          faceUp: false,
+          element: null,
+          location: null,
+          ariaLabel: `${RANK_LABELS[rank]} of ${SUIT_LABELS[suit]}`
+        });
+      }
+    }
+    return deck;
+  }
+
+  function initSolitaireWindow(win){
+    if(!win || win.dataset.solitaireInit === '1') return;
+    win.dataset.solitaireInit = '1';
+
+    const board = win.querySelector('[data-role="solitaire"]');
+    if(!board) return;
+    board.classList.remove('is-complete');
+
+    const piles = {
+      stock: board.querySelector('[data-pile-type="stock"]'),
+      waste: board.querySelector('[data-pile-type="waste"]'),
+      foundations: Array.from(board.querySelectorAll('[data-pile-type="foundation"]')),
+      tableau: Array.from(board.querySelectorAll('[data-pile-type="tableau"]'))
+    };
+
+    const state = {
+      stock: [],
+      waste: [],
+      foundations: Array.from({length: FOUNDATION_COUNT}, () => []),
+      tableau: Array.from({length: TABLEAU_COUNT}, () => [])
+    };
+
+    const metrics = {
+      cardWidth: 88,
+      cardHeight: 124,
+      tableauFaceUpOffset: 32,
+      tableauFaceDownOffset: 18
+    };
+
+    let dragState = null;
+
+    function setCardFace(card, faceUp){
+      card.faceUp = !!faceUp;
+      if(card.element){
+        card.element.classList.toggle('is-face-up', card.faceUp);
+        card.element.classList.toggle('is-face-down', !card.faceUp);
+        card.element.dataset.face = card.faceUp ? 'up' : 'down';
+        const label = card.element.querySelector('.card-label');
+        if(label){
+          label.textContent = card.faceUp ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : '';
+        }
+        card.element.setAttribute('aria-label', card.faceUp ? card.ariaLabel : 'Face-down card');
+      }
+    }
+
+    function getPileArray(type, index){
+      switch(type){
+        case 'stock': return state.stock;
+        case 'waste': return state.waste;
+        case 'foundation': return state.foundations[index] || [];
+        case 'tableau': return state.tableau[index] || [];
+        default: return [];
+      }
+    }
+
+    function getPileElement(type, index){
+      switch(type){
+        case 'stock': return piles.stock;
+        case 'waste': return piles.waste;
+        case 'foundation': return piles.foundations[index] || null;
+        case 'tableau': return piles.tableau[index] || null;
+        default: return null;
+      }
+    }
+
+    function updateCardStyles(type, index, arr){
+      const pileEl = getPileElement(type, index);
+      if(!pileEl) return;
+      const wasteOffset = Math.min(36, Math.round(metrics.cardWidth * 0.3));
+
+      arr.forEach((card, idx) => {
+        const el = card.element;
+        if(!el) return;
+        el.style.width = `${metrics.cardWidth}px`;
+        el.style.height = `${metrics.cardHeight}px`;
+        el.dataset.pileType = type;
+        el.dataset.pileIndex = index;
+        el.dataset.cardIndex = idx;
+        el.classList.remove('is-hidden');
+        let top = 0;
+        let left = 0;
+        let z = idx + 1;
+
+        if(type === 'tableau'){
+          for(let i = 0; i < idx; i++){
+            const prev = arr[i];
+            top += prev.faceUp ? metrics.tableauFaceUpOffset : metrics.tableauFaceDownOffset;
+          }
+        } else if(type === 'waste'){
+          const visibleStart = Math.max(0, arr.length - 3);
+          if(idx < visibleStart){
+            el.classList.add('is-hidden');
+          } else {
+            const visibleIndex = idx - visibleStart;
+            left = visibleIndex * wasteOffset;
+            z = visibleIndex + 1;
+          }
+        } else if(type === 'stock' || type === 'foundation'){
+          if(idx !== arr.length - 1){
+            el.classList.add('is-hidden');
+          } else {
+            z = arr.length;
+          }
+        }
+
+        el.style.top = `${top}px`;
+        el.style.left = `${left}px`;
+        el.style.zIndex = z;
+      });
+
+      const height = arr.length ? (
+        type === 'tableau'
+          ? metrics.cardHeight + arr.slice(1).reduce((sum, card) => sum + (card.faceUp ? metrics.tableauFaceUpOffset : metrics.tableauFaceDownOffset), 0)
+          : metrics.cardHeight
+      ) : metrics.cardHeight;
+      pileEl.style.setProperty('--computed-height', `${height}px`);
+      pileEl.classList.toggle('is-empty', arr.length === 0);
+    }
+
+    function renderPile(type, index){
+      const arr = getPileArray(type, index);
+      const pileEl = getPileElement(type, index);
+      if(!pileEl) return;
+      pileEl.innerHTML = '';
+      arr.forEach(card => {
+        if(card.element){
+          pileEl.appendChild(card.element);
+          setCardFace(card, card.faceUp);
+        }
+      });
+      updateCardStyles(type, index, arr);
+    }
+
+    function renderAll(){
+      renderPile('stock', 0);
+      renderPile('waste', 0);
+      for(let i=0;i<FOUNDATION_COUNT;i++){
+        renderPile('foundation', i);
+      }
+      for(let i=0;i<TABLEAU_COUNT;i++){
+        renderPile('tableau', i);
+      }
+    }
+
+    function applyMetrics(){
+      board.style.setProperty('--card-width', `${metrics.cardWidth}px`);
+      board.style.setProperty('--card-height', `${metrics.cardHeight}px`);
+      board.style.setProperty('--tableau-faceup-offset', `${metrics.tableauFaceUpOffset}px`);
+      board.style.setProperty('--tableau-facedown-offset', `${metrics.tableauFaceDownOffset}px`);
+      renderAll();
+    }
+
+    function computeMetrics(){
+      if(!document.body.contains(board)){
+        window.removeEventListener('resize', computeMetrics);
+        return;
+      }
+      const content = win.querySelector('.content');
+      const width = content ? content.clientWidth : board.clientWidth;
+      const gapAllowance = 6 * 16; // approximate padding/gaps
+      const available = Math.max(width - gapAllowance, 320);
+      const cardWidth = Math.max(64, Math.min(120, Math.floor(available / 9)));
+      metrics.cardWidth = cardWidth;
+      metrics.cardHeight = Math.round(cardWidth * 1.4);
+      metrics.tableauFaceUpOffset = Math.round(metrics.cardHeight * 0.32);
+      metrics.tableauFaceDownOffset = Math.round(metrics.cardHeight * 0.18);
+      applyMetrics();
+    }
+
+    function canDrop(movingCards, sourceType, sourceIndex, destType, destIndex){
+      if(!movingCards.length) return false;
+      if(destType === 'stock' || destType === 'waste') return false;
+
+      const first = movingCards[0];
+      if(destType === 'foundation'){
+        if(movingCards.length !== 1) return false;
+        const dest = state.foundations[destIndex];
+        if(!dest.length){
+          return first.value === 1;
+        }
+        const top = dest[dest.length - 1];
+        return top.suit === first.suit && first.value === top.value + 1;
+      }
+
+      if(destType === 'tableau'){
+        const dest = state.tableau[destIndex];
+        if(!dest.length){
+          return first.value === 13;
+        }
+        const top = dest[dest.length - 1];
+        if(!top.faceUp) return false;
+        return top.color !== first.color && top.value === first.value + 1;
+      }
+
+      return false;
+    }
+
+    function moveStack(sourceType, sourceIndex, startIdx, destType, destIndex){
+      const source = getPileArray(sourceType, sourceIndex);
+      const moving = source.splice(startIdx);
+      moving.forEach(card => {
+        card.location = { type: destType, index: destIndex };
+      });
+      const dest = getPileArray(destType, destIndex);
+      dest.push(...moving);
+
+      if(sourceType === 'tableau' && source.length){
+        const tail = source[source.length - 1];
+        if(tail && !tail.faceUp){
+          setCardFace(tail, true);
+        }
+      }
+
+      renderPile(sourceType, sourceIndex);
+      if(sourceType === 'stock' || sourceType === 'waste'){
+        renderPile('stock', 0);
+        renderPile('waste', 0);
+      }
+      renderPile(destType, destIndex);
+      if(destType === 'foundation'){
+        checkWinCondition();
+      }
+    }
+
+    function tryAutoFoundation(card){
+      if(!card.faceUp || !card.location) return false;
+      const sourceArr = getPileArray(card.location.type, card.location.index);
+      if(sourceArr[sourceArr.length - 1] !== card) return false;
+      const startIdx = sourceArr.indexOf(card);
+      for(let i=0;i<FOUNDATION_COUNT;i++){
+        if(canDrop([card], card.location.type, card.location.index, 'foundation', i)){
+          moveStack(card.location.type, card.location.index, startIdx, 'foundation', i);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function createGhost(cards){
+      const ghost = document.createElement('div');
+      ghost.className = 'solitaire-drag-ghost';
+      ghost.style.width = `${metrics.cardWidth}px`;
+      ghost.style.height = `${metrics.cardHeight}px`;
+      let offset = 0;
+      cards.forEach((card, idx) => {
+        const clone = card.element.cloneNode(true);
+        clone.classList.add('ghost-card');
+        clone.style.top = `${offset}px`;
+        clone.style.left = '0px';
+        clone.style.width = `${metrics.cardWidth}px`;
+        clone.style.height = `${metrics.cardHeight}px`;
+        ghost.appendChild(clone);
+        if(card.location?.type === 'tableau' && idx !== cards.length - 1){
+          offset += metrics.tableauFaceUpOffset;
+        }
+      });
+      document.body.appendChild(ghost);
+      return ghost;
+    }
+
+    function updateGhostPosition(state, x, y){
+      if(!state || !state.ghost) return;
+      state.ghost.style.left = `${x - state.offsetX}px`;
+      state.ghost.style.top = `${y - state.offsetY}px`;
+    }
+
+    function resolveDropTarget(x, y){
+      const elements = document.elementsFromPoint(x, y);
+      for(const el of elements){
+        if(!el) continue;
+        if(el === document.body) continue;
+        const pileEl = el.closest('[data-pile-type]');
+        if(pileEl && board.contains(pileEl)){
+          const type = pileEl.getAttribute('data-pile-type');
+          const index = Number(pileEl.getAttribute('data-index') || pileEl.getAttribute('data-pile-index') || 0);
+          return { type, index };
+        }
+      }
+      return null;
+    }
+
+    function stopDrag(){
+      if(!dragState) return;
+      const { sourceCardEl, pointerId } = dragState;
+      if(sourceCardEl && sourceCardEl.hasPointerCapture?.(pointerId)){
+        sourceCardEl.releasePointerCapture(pointerId);
+      }
+      if(sourceCardEl){
+        sourceCardEl.removeEventListener('pointermove', onPointerMove);
+        sourceCardEl.removeEventListener('pointerup', onPointerUp);
+        sourceCardEl.removeEventListener('pointercancel', onPointerCancel);
+      }
+      dragState.ghost?.remove();
+      dragState = null;
+    }
+
+    function onPointerMove(e){
+      if(!dragState || e.pointerId !== dragState.pointerId) return;
+      updateGhostPosition(dragState, e.clientX, e.clientY);
+    }
+
+    function onPointerUp(e){
+      if(!dragState || e.pointerId !== dragState.pointerId) return;
+      const drop = resolveDropTarget(e.clientX, e.clientY);
+      const { sourceType, sourceIndex, startIdx, moving } = dragState;
+      if(drop && canDrop(moving, sourceType, sourceIndex, drop.type, drop.index)){
+        moveStack(sourceType, sourceIndex, startIdx, drop.type, drop.index);
+      }
+      stopDrag();
+    }
+
+    function onPointerCancel(e){
+      if(!dragState || e.pointerId !== dragState.pointerId) return;
+      stopDrag();
+    }
+
+    function onCardPointerDown(e){
+      const card = e.currentTarget?.__cardRef;
+      if(!card || !card.faceUp) return;
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
+      const sourceType = card.location?.type;
+      const sourceIndex = card.location?.index ?? 0;
+      const sourceArr = getPileArray(sourceType, sourceIndex);
+      const cardIdx = sourceArr.indexOf(card);
+      if(cardIdx < 0) return;
+      if(sourceType !== 'tableau' && cardIdx !== sourceArr.length - 1) return;
+
+      const moving = sourceType === 'tableau' ? sourceArr.slice(cardIdx) : [card];
+      if(!moving.every(c => c.faceUp)) return;
+
+      const rect = card.element.getBoundingClientRect();
+      dragState = {
+        pointerId: e.pointerId,
+        sourceType,
+        sourceIndex,
+        startIdx: cardIdx,
+        moving,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top,
+        ghost: createGhost(moving),
+        sourceCardEl: card.element
+      };
+      updateGhostPosition(dragState, e.clientX, e.clientY);
+      card.element.setPointerCapture?.(e.pointerId);
+      card.element.addEventListener('pointermove', onPointerMove);
+      card.element.addEventListener('pointerup', onPointerUp);
+      card.element.addEventListener('pointercancel', onPointerCancel);
+      e.preventDefault();
+    }
+
+    function attachCardElement(card){
+      const el = document.createElement('div');
+      el.className = 'solitaire-card is-face-down';
+      el.dataset.cardId = card.id;
+      el.setAttribute('role', 'img');
+      el.setAttribute('aria-label', 'Face-down card');
+      el.tabIndex = 0;
+      const label = document.createElement('span');
+      label.className = 'card-label';
+      el.appendChild(label);
+      el.__cardRef = card;
+      el.addEventListener('pointerdown', onCardPointerDown);
+      el.addEventListener('dblclick', (evt) => {
+        evt.preventDefault();
+        tryAutoFoundation(card);
+      });
+      el.addEventListener('keydown', (evt) => {
+        if(evt.key === 'Enter' || evt.key === ' '){
+          evt.preventDefault();
+          tryAutoFoundation(card);
+        }
+      });
+      card.element = el;
+      setCardFace(card, card.faceUp);
+    }
+
+    function checkWinCondition(){
+      const total = state.foundations.reduce((sum, pile) => sum + pile.length, 0);
+      if(total === 52){
+        board.classList.add('is-complete');
+        const titleNode = win.querySelector('.title span');
+        if(titleNode && !titleNode.textContent.includes('You Won')){
+          titleNode.textContent += ' — You Won!';
+        }
+      }
+    }
+
+    function onStockClick(){
+      if(state.stock.length){
+        const card = state.stock.pop();
+        setCardFace(card, true);
+        card.location = { type: 'waste', index: 0 };
+        state.waste.push(card);
+        renderPile('stock', 0);
+        renderPile('waste', 0);
+        return;
+      }
+      if(state.waste.length){
+        const redealt = [];
+        while(state.waste.length){
+          const card = state.waste.pop();
+          setCardFace(card, false);
+          card.location = { type: 'stock', index: 0 };
+          redealt.push(card);
+        }
+        state.stock = redealt;
+        renderPile('stock', 0);
+        renderPile('waste', 0);
+      }
+    }
+
+    function onWasteDoubleClick(e){
+      const card = state.waste[state.waste.length - 1];
+      if(card){
+        tryAutoFoundation(card);
+      }
+    }
+
+    // Create deck + deal
+    const deck = shuffle(createDeck());
+    deck.forEach(card => attachCardElement(card));
+    state.stock = deck;
+    state.stock.forEach(card => {
+      card.location = { type: 'stock', index: 0 };
+      setCardFace(card, false);
+    });
+
+    for(let col = 0; col < TABLEAU_COUNT; col++){
+      for(let row = 0; row <= col; row++){
+        const card = state.stock.pop();
+        if(!card) continue;
+        const faceUp = row === col;
+        setCardFace(card, faceUp);
+        card.location = { type: 'tableau', index: col };
+        state.tableau[col].push(card);
+      }
+    }
+
+    renderAll();
+
+    piles.stock?.addEventListener('click', onStockClick);
+    piles.waste?.addEventListener('dblclick', onWasteDoubleClick);
+
+    computeMetrics();
+    window.addEventListener('resize', computeMetrics);
+  }
+
+  window.initSolitaireWindow = initSolitaireWindow;
+})();
