@@ -370,7 +370,8 @@
     }
 
     function stopDrag(){
-      if(!dragState) return;
+      if(!dragState || dragState.stopping) return;
+      dragState.stopping = true;
       const { sourceCardEl, pointerId, listenersTarget, captureActive } = dragState;
       if(captureActive && sourceCardEl && sourceCardEl.hasPointerCapture?.(pointerId)){
         sourceCardEl.releasePointerCapture(pointerId);
@@ -419,8 +420,9 @@
       if(!moving.every(c => c.faceUp)) return;
 
       const rect = card.element.getBoundingClientRect();
+      const supportsPointerCapture = typeof card.element.setPointerCapture === 'function';
       let captureActive = false;
-      if(typeof card.element.setPointerCapture === 'function'){
+      if(supportsPointerCapture){
         try {
           card.element.setPointerCapture(e.pointerId);
           captureActive = card.element.hasPointerCapture?.(e.pointerId);
@@ -445,7 +447,8 @@
         ghost: createGhost(moving),
         sourceCardEl: card.element,
         listenersTarget,
-        captureActive
+        captureActive,
+        stopping: false
       };
       updateGhostPosition(dragState, e.clientX, e.clientY);
       listenersTarget.addEventListener('pointermove', onPointerMove);
