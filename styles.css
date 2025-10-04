@@ -5,7 +5,7 @@
 }
 *{box-sizing:border-box; user-select:none}
 html,body{height:100%}
-body{margin:0; font:14px/1 "Segoe UI", sans-serif; color:var(--text); background:var(--desk)}
+body{margin:0; font:14px/1 "Jersey 20", sans-serif; color:var(--text); background:var(--desk)}
 
 .desktop{position:fixed; inset:0; overflow:hidden}
 .wallpaper{position:absolute; inset:0; background-color:var(--desk); background-image:url("assets/img/logo.png"); background-repeat:repeat; background-size:128px;}
