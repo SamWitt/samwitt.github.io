@@ -3,6 +3,7 @@ const desktop = document.getElementById('desktop');
 const tasks = document.getElementById('tasks');
 
 const GRID_SIZE = 20;
+const VIEWPORT_INSET = 8;
 
 const snapToGrid = (value) => Math.round(value / GRID_SIZE) * GRID_SIZE;
 const alignToGridStart = (value) => Math.floor(value / GRID_SIZE) * GRID_SIZE;
@@ -68,14 +69,53 @@ function makeWindow({title, tpl, x=140, y=90, w=420}){
   node.querySelector('.content').append(document.getElementById(tpl).content.cloneNode(true));
   desktop.appendChild(node); bringToFront(node);
 
+  const clampToViewport = (left, top, viewportWidth, viewportHeight) => {
+    const { width, height } = node.getBoundingClientRect();
+    const minLeft = VIEWPORT_INSET;
+    const minTop = VIEWPORT_INSET;
+    const maxLeft = Math.max(viewportWidth - VIEWPORT_INSET - width, minLeft);
+    const maxTop = Math.max(viewportHeight - VIEWPORT_INSET - height, minTop);
+    return {
+      left: Math.min(Math.max(left, minLeft), maxLeft),
+      top: Math.min(Math.max(top, minTop), maxTop)
+    };
+  };
+
+  const ensureVisibleWithinViewport = () => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    let rect = node.getBoundingClientRect();
+
+    const availableWidth = Math.max(viewportWidth - VIEWPORT_INSET * 2, 0);
+    if(rect.width > availableWidth && availableWidth > 0){
+      node.style.width = `${Math.min(rect.width, availableWidth)}px`;
+      rect = node.getBoundingClientRect();
+    }
+
+    const availableHeight = Math.max(viewportHeight - VIEWPORT_INSET * 2, 0);
+    if(rect.height > availableHeight && availableHeight > 0){
+      node.style.height = `${Math.min(rect.height, availableHeight)}px`;
+      rect = node.getBoundingClientRect();
+    }
+
+    const { left, top } = clampToViewport(rect.left, rect.top, viewportWidth, viewportHeight);
+    node.style.left = `${left}px`;
+    node.style.top = `${top}px`;
+  };
+
+  ensureVisibleWithinViewport();
+
   // titlebar drag (Pointer Events)
   const bar = node.querySelector('.titlebar');
   let pointerId=null, offX=0, offY=0;
 
   function onMove(e){
     if(e.pointerId!==pointerId) return;
-    node.style.left = Math.max(0, e.clientX-offX)+'px';
-    node.style.top  = Math.max(0, e.clientY-offY)+'px';
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const { left, top } = clampToViewport(e.clientX-offX, e.clientY-offY, viewportWidth, viewportHeight);
+    node.style.left = left+'px';
+    node.style.top  = top+'px';
   }
   function cleanup(){
     if(pointerId===null) return;
