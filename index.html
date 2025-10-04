@@ -32,9 +32,9 @@
   <img src="assets/img/Contact1.png" alt="" />
   <div class="label">Contact</div>
 </div>
-<div class="icon sticky" tabindex="0" role="button" aria-label="Sticky Notes">
+<div class="icon solitaire" tabindex="0" role="button" aria-label="Solitaire">
   <img src="assets/img/solitaire.png" alt="" />
-  <div class="label">Sticky Notes </div> 
+  <div class="label">Solitaire</div>
 </div>
 <div class="icon publishers" tabindex="0" role="button" aria-label="Publishers">
   <img src="assets/img/vinyl.png" alt="" />
@@ -69,6 +69,9 @@
   </div>
   <div class="item" role="menuitem" data-open="publishers">
     <span>Publishers</span>
+  </div>
+  <div class="item" role="menuitem" data-open="solitaire">
+    <span>Solitaire</span>
   </div>
   <div class="hr" role="separator"></div>
   <div class="item" role="menuitem" data-cmd="closeAll">
@@ -540,7 +543,32 @@
   </section>
 </template>
 
+<template id="tpl-solitaire">
+  <section class="solitaire-board" data-role="solitaire">
+    <div class="solitaire-top-row">
+      <div class="pile stock" data-role="stock" data-pile-type="stock" data-index="0" aria-label="Stock" tabindex="0"></div>
+      <div class="pile waste" data-role="waste" data-pile-type="waste" data-index="0" aria-label="Waste" tabindex="0"></div>
+      <div class="foundation-group" data-role="foundations">
+        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="0" aria-label="Foundation 1" tabindex="0"></div>
+        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="1" aria-label="Foundation 2" tabindex="0"></div>
+        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="2" aria-label="Foundation 3" tabindex="0"></div>
+        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="3" aria-label="Foundation 4" tabindex="0"></div>
+      </div>
+    </div>
+    <div class="solitaire-tableau" data-role="tableau">
+      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="0" aria-label="Tableau Pile 1" tabindex="0"></div>
+      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="1" aria-label="Tableau Pile 2" tabindex="0"></div>
+      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="2" aria-label="Tableau Pile 3" tabindex="0"></div>
+      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="3" aria-label="Tableau Pile 4" tabindex="0"></div>
+      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="4" aria-label="Tableau Pile 5" tabindex="0"></div>
+      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="5" aria-label="Tableau Pile 6" tabindex="0"></div>
+      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="6" aria-label="Tableau Pile 7" tabindex="0"></div>
+    </div>
+  </section>
+</template>
+
 
 <script src="script.js" defer></script>
+<script src="solitaire.js" defer></script>
 </body>
 </html>

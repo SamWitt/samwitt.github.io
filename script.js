@@ -442,6 +442,13 @@ const openers = {
     const win = makeWindow({ title: 'Publishers', tpl: 'tpl-publishers', x: 220, y: 200, w: 440 });
     if (typeof initPublishersWindow === 'function') initPublishersWindow(win);
     return win;
+  },
+
+  solitaire: () => {
+    const win = makeWindow({ title: 'Solitaire', tpl: 'tpl-solitaire', x: 180, y: 120, w: 880 });
+    win.classList.add('solitaire');
+    if (typeof initSolitaireWindow === 'function') initSolitaireWindow(win);
+    return win;
   }
 };
 // Icon drag + dblclick handlers
