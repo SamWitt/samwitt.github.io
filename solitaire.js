@@ -72,6 +72,71 @@
     };
 
     let dragState = null;
+    const pointerEventsSupported = typeof window !== 'undefined' && 'PointerEvent' in window;
+    let lastTouchTime = 0;
+
+    function normalizePointerLikeEvent(event, expectedPointerId){
+      if(!event) return null;
+      if('pointerId' in event && event.pointerId !== undefined){
+        if(expectedPointerId !== undefined && event.pointerId !== expectedPointerId) return null;
+        let pointerType = event.pointerType;
+        if(!pointerType){
+          pointerType = event instanceof MouseEvent ? 'mouse' : 'pen';
+        }
+        return {
+          pointerId: event.pointerId,
+          pointerType,
+          clientX: event.clientX,
+          clientY: event.clientY,
+          button: event.button ?? 0,
+          buttons: event.buttons ?? 0,
+          originalEvent: event
+        };
+      }
+
+      const type = event.type || '';
+
+      if(type.startsWith('mouse')){
+        if(expectedPointerId !== undefined && expectedPointerId !== 'mouse') return null;
+        return {
+          pointerId: 'mouse',
+          pointerType: 'mouse',
+          clientX: event.clientX,
+          clientY: event.clientY,
+          button: event.button ?? 0,
+          buttons: event.buttons ?? 0,
+          originalEvent: event
+        };
+      }
+
+      if(type.startsWith('touch')){
+        const touches = event.changedTouches && event.changedTouches.length
+          ? Array.from(event.changedTouches)
+          : [];
+        let touch = null;
+        if(expectedPointerId !== undefined){
+          touch = touches.find(t => t.identifier === expectedPointerId);
+          if(!touch && event.touches){
+            touch = Array.from(event.touches).find(t => t.identifier === expectedPointerId) || null;
+          }
+        } else {
+          touch = touches[0] || null;
+        }
+        if(!touch) return null;
+        return {
+          pointerId: touch.identifier,
+          pointerType: 'touch',
+          clientX: touch.clientX,
+          clientY: touch.clientY,
+          button: 0,
+          buttons: 1,
+          originalEvent: event,
+          touch
+        };
+      }
+
+      return null;
+    }
 
     function setCardFace(card, faceUp){
       card.faceUp = !!faceUp;
@@ -372,27 +437,27 @@
     function stopDrag(){
       if(!dragState || dragState.stopping) return;
       dragState.stopping = true;
-      const { sourceCardEl, pointerId, listenersTarget, captureActive } = dragState;
-      if(captureActive && sourceCardEl && sourceCardEl.hasPointerCapture?.(pointerId)){
-        sourceCardEl.releasePointerCapture(pointerId);
+      const { sourceCardEl, captureActive, capturePointerId, listeners } = dragState;
+      if(captureActive && sourceCardEl && capturePointerId !== undefined && sourceCardEl.hasPointerCapture?.(capturePointerId)){
+        sourceCardEl.releasePointerCapture(capturePointerId);
       }
-      if(listenersTarget){
-        listenersTarget.removeEventListener('pointermove', onPointerMove);
-        listenersTarget.removeEventListener('pointerup', onPointerUp);
-        listenersTarget.removeEventListener('pointercancel', onPointerCancel);
+      if(listeners){
+        listeners.forEach(({ target, type, handler, options }) => {
+          target.removeEventListener(type, handler, options);
+        });
       }
       dragState.ghost?.remove();
       dragState = null;
     }
 
-    function onPointerMove(e){
-      if(!dragState || e.pointerId !== dragState.pointerId) return;
-      updateGhostPosition(dragState, e.clientX, e.clientY);
+    function handleDragMove(normalized){
+      if(!dragState) return;
+      updateGhostPosition(dragState, normalized.clientX, normalized.clientY);
     }
 
-    function onPointerUp(e){
-      if(!dragState || e.pointerId !== dragState.pointerId) return;
-      const drop = resolveDropTarget(e.clientX, e.clientY);
+    function handleDragUp(normalized){
+      if(!dragState) return;
+      const drop = resolveDropTarget(normalized.clientX, normalized.clientY);
       const { sourceType, sourceIndex, startIdx, moving } = dragState;
       if(drop && canDrop(moving, sourceType, sourceIndex, drop.type, drop.index)){
         moveStack(sourceType, sourceIndex, startIdx, drop.type, drop.index);
@@ -400,15 +465,77 @@
       stopDrag();
     }
 
-    function onPointerCancel(e){
-      if(!dragState || e.pointerId !== dragState.pointerId) return;
+    function handleDragCancel(){
+      if(!dragState) return;
       stopDrag();
     }
 
-    function onCardPointerDown(e){
-      const card = e.currentTarget?.__cardRef;
+    function onPointerMove(e){
+      if(!dragState) return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      handleDragMove(normalized);
+    }
+
+    function onPointerUp(e){
+      if(!dragState) return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      handleDragUp(normalized);
+    }
+
+    function onPointerCancel(e){
+      if(!dragState) return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      handleDragCancel();
+    }
+
+    function onMouseMove(e){
+      if(!dragState || dragState.pointerType !== 'mouse') return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      handleDragMove(normalized);
+    }
+
+    function onMouseUp(e){
+      if(!dragState || dragState.pointerType !== 'mouse') return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      handleDragUp(normalized);
+    }
+
+    function onTouchMove(e){
+      if(!dragState || dragState.pointerType !== 'touch') return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      normalized.originalEvent?.preventDefault?.();
+      handleDragMove(normalized);
+    }
+
+    function onTouchEnd(e){
+      if(!dragState || dragState.pointerType !== 'touch') return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      handleDragUp(normalized);
+    }
+
+    function onTouchCancel(e){
+      if(!dragState || dragState.pointerType !== 'touch') return;
+      const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
+      if(!normalized) return;
+      handleDragCancel();
+    }
+
+    function onWindowBlur(){
+      if(dragState){
+        stopDrag();
+      }
+    }
+
+    function beginCardDrag(card, normalized, originalEvent, startType){
       if(!card || !card.faceUp) return;
-      if(e.pointerType === 'mouse' && e.button !== 0) return;
+      if(normalized.pointerType === 'mouse' && normalized.button !== 0) return;
       const sourceType = card.location?.type;
       const sourceIndex = card.location?.index ?? 0;
       const sourceArr = getPileArray(sourceType, sourceIndex);
@@ -420,12 +547,19 @@
       if(!moving.every(c => c.faceUp)) return;
 
       const rect = card.element.getBoundingClientRect();
-      const supportsPointerCapture = typeof card.element.setPointerCapture === 'function';
+      const listeners = [];
+      const registerListener = (target, type, handler, options) => {
+        target.addEventListener(type, handler, options);
+        listeners.push({ target, type, handler, options });
+      };
+
+      const isPointerEvent = startType === 'pointer' && originalEvent && 'pointerId' in originalEvent;
+      const supportsPointerCapture = isPointerEvent && typeof card.element.setPointerCapture === 'function';
       let captureActive = false;
       if(supportsPointerCapture){
         try {
-          card.element.setPointerCapture(e.pointerId);
-          captureActive = card.element.hasPointerCapture?.(e.pointerId);
+          card.element.setPointerCapture(originalEvent.pointerId);
+          captureActive = card.element.hasPointerCapture?.(originalEvent.pointerId);
           if(captureActive === undefined){
             captureActive = true;
           }
@@ -437,24 +571,68 @@
       const listenersTarget = captureActive ? card.element : window;
 
       dragState = {
-        pointerId: e.pointerId,
+        pointerId: normalized.pointerId,
+        pointerType: normalized.pointerType,
         sourceType,
         sourceIndex,
         startIdx: cardIdx,
         moving,
-        offsetX: e.clientX - rect.left,
-        offsetY: e.clientY - rect.top,
+        offsetX: normalized.clientX - rect.left,
+        offsetY: normalized.clientY - rect.top,
         ghost: createGhost(moving),
         sourceCardEl: card.element,
-        listenersTarget,
         captureActive,
+        capturePointerId: isPointerEvent ? originalEvent.pointerId : undefined,
+        listeners,
         stopping: false
       };
-      updateGhostPosition(dragState, e.clientX, e.clientY);
-      listenersTarget.addEventListener('pointermove', onPointerMove);
-      listenersTarget.addEventListener('pointerup', onPointerUp);
-      listenersTarget.addEventListener('pointercancel', onPointerCancel);
-      e.preventDefault();
+      updateGhostPosition(dragState, normalized.clientX, normalized.clientY);
+
+      if(isPointerEvent){
+        registerListener(listenersTarget, 'pointermove', onPointerMove);
+        registerListener(listenersTarget, 'pointerup', onPointerUp);
+        registerListener(listenersTarget, 'pointercancel', onPointerCancel);
+      } else if(normalized.pointerType === 'mouse'){
+        registerListener(window, 'mousemove', onMouseMove);
+        registerListener(window, 'mouseup', onMouseUp);
+      } else if(normalized.pointerType === 'touch'){
+        const options = { passive: false };
+        registerListener(window, 'touchmove', onTouchMove, options);
+        registerListener(window, 'touchend', onTouchEnd, options);
+        registerListener(window, 'touchcancel', onTouchCancel, options);
+      }
+
+      registerListener(window, 'blur', onWindowBlur);
+
+      originalEvent.preventDefault?.();
+    }
+
+    function onCardPointerDown(e){
+      const card = e.currentTarget?.__cardRef;
+      const normalized = normalizePointerLikeEvent(e);
+      if(!card || !normalized) return;
+      beginCardDrag(card, normalized, e, 'pointer');
+    }
+
+    function onCardMouseDown(e){
+      if(pointerEventsSupported) return;
+      if(Date.now() - lastTouchTime < 500){
+        e.preventDefault();
+        return;
+      }
+      const card = e.currentTarget?.__cardRef;
+      const normalized = normalizePointerLikeEvent(e);
+      if(!card || !normalized) return;
+      beginCardDrag(card, normalized, e, 'mouse');
+    }
+
+    function onCardTouchStart(e){
+      if(pointerEventsSupported) return;
+      lastTouchTime = Date.now();
+      const card = e.currentTarget?.__cardRef;
+      const normalized = normalizePointerLikeEvent(e);
+      if(!card || !normalized) return;
+      beginCardDrag(card, normalized, e, 'touch');
     }
 
     function attachCardElement(card){
@@ -469,6 +647,10 @@
       el.appendChild(label);
       el.__cardRef = card;
       el.addEventListener('pointerdown', onCardPointerDown);
+      if(!pointerEventsSupported){
+        el.addEventListener('mousedown', onCardMouseDown);
+        el.addEventListener('touchstart', onCardTouchStart, { passive: false });
+      }
       el.addEventListener('dblclick', (evt) => {
         evt.preventDefault();
         tryAutoFoundation(card);
