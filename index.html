@@ -1,574 +1,381 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Samuel Witt — Portfolio</title>
-<meta name="description" content="Interactive Win95-style desktop portfolio."/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Monaco&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Honk&display=swap">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Samuel Witt — Portfolio</title>
+  <meta name="description" content="Scroll through Samuel Witt's Windows 95 inspired portfolio for music placements, featured tracks, and contact details." />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Honk&display=swap">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="desktop" id="desktop" aria-label="Desktop" role="application">
-<div class="wallpaper" aria-hidden="true"></div>
-<div class="selection-marquee" id="marquee"></div>
-
-
-<!-- Desktop Icons -->
-<div class="icon about" tabindex="0" role="button" aria-label="About"> 
-  <img src="assets/img/About1.png" alt="" /> 
-  <div class="label">About</div> 
-</div>
-<div class="icon music" tabindex="0" role="button" aria-label="Music">
-  <img src="assets/img/Listen1.png" alt="" />
-  <div class="label">Music</div>
-</div>
-<div class="icon projects" tabindex="0" role="button" aria-label="Placements">
-  <img src="assets/img/Placements1.png" alt="" />
-  <div class="label">Placements</div>
-</div>
-<div class="icon contact" tabindex="0" role="button" aria-label="Contact">
-  <img src="assets/img/Contact1.png" alt="" />
-  <div class="label">Contact</div>
-</div>
-<div class="icon solitaire" tabindex="0" role="button" aria-label="Solitaire">
-  <img src="assets/img/solitaire.png" alt="" />
-  <div class="label">Solitaire</div>
-</div>
-<div class="icon publishers" tabindex="0" role="button" aria-label="Publishers">
-  <img src="assets/img/vinyl.png" alt="" />
-  <div class="label">Publishers</div>
-</div>
-
-
-<!-- Taskbar -->
-<div class="taskbar" id="taskbar">
-<button class="btn start" id="startBtn">START</button>
-<div id="tasks" style="display:flex; gap:6px"></div>
-<div class="status" id="clock"></div>
-</div>
-</div>
-
-
-<!-- Start menu -->
-<div class="start-menu" id="startMenu" role="menu" aria-label="Start menu">
-  <p class="start-blurb">This Website was made by Samuel Witt in conjunction with Git-Hub, ChatGPT5, Claude 3.1, Sora, and is an ongoing fun project of mine.  Thanks for stopping by!</p>
-  <header>Samuel Witt</header>
-  <div class="item" role="menuitem" data-open="about">
-    <span>About</span>
-  </div>
-  <div class="item" role="menuitem" data-open="music">
-    <span>Music</span>
-  </div>
-  <div class="item" role="menuitem" data-open="placements">
-    <span>Placements</span>
-  </div>
-  <div class="item" role="menuitem" data-open="contact">
-    <span>Contact</span>
-  </div>
-  <div class="item" role="menuitem" data-open="publishers">
-    <span>Publishers</span>
-  </div>
-  <div class="item" role="menuitem" data-open="solitaire">
-    <span>Solitaire</span>
-  </div>
-  <div class="hr" role="separator"></div>
-  <div class="item" role="menuitem" data-cmd="closeAll">
-    <span>Close All Windows</span>
-  </div>
-</div>
-
-
-<!-- Window + content templates -->
-<template id="tpl-window">
-  <div class="window" role="dialog" aria-modal="false">
-    <div class="titlebar">
-      <div class="title"><span></span></div>
-      <div class="controls">
-        <button class="btn btn-min" type="button" aria-label="Minimize">_</button>
-        <button class="btn btn-max" type="button" aria-label="Maximize">□</button>
-        <button class="btn btn-close" type="button" aria-label="Close">✕</button>
-      </div>
-    </div>
-    <div class="content" role="document"></div>
-  </div>
-</template>
-
-<template id="tpl-about">
-  <section class="content-section about" aria-labelledby="about-heading">
-    <h2 id="about-heading">Instrumental Music for Media Composer</h2>
-    <div class="about-hero">
-      <div class="about-portrait">
-        <img src="assets/img/Face.jpg" alt="Portrait of Samuel Witt" style="max-width: 207px; max-height: 361px;" />
-        <nav class="about-social" aria-label="Social media">
-          <ul>
-            <li><a href="https://www.instagram.com/sweetsammybeats/" target="_blank" rel="noreferrer noopener">Instagram</a></li>
-            <li><a href="https://www.linkedin.com/in/samuelwitt/" target="_blank" rel="noreferrer noopener">LinkedIn</a></li>
+  <div class="background"></div>
+  <div class="page-shell">
+    <header class="site-header" id="top">
+      <div class="site-header__inner">
+        <div class="site-brand">
+          <button class="start-chip" type="button" aria-hidden="true">START</button>
+          <div class="site-brand__text">
+            <span class="site-brand__title">Samuel Witt</span>
+            <span class="site-brand__subtitle">Instrumental Music for Media Composer</span>
+          </div>
+        </div>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="siteNav">
+          <span class="nav-toggle__label">Menu</span>
+        </button>
+        <nav class="site-nav" id="siteNav" aria-label="Section navigation">
+          <ul class="site-nav__list">
+            <li><a href="#intro">Intro</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#music">Music</a></li>
+            <li><a href="#placements">Placements</a></li>
+            <li><a href="#publishers">Publishers</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#solitaire">Solitaire</a></li>
           </ul>
         </nav>
       </div>
-      <div class="about-blurb">
-        <p>Samuel Witt aka "Sweet Sammy" crafts vibrant, story-driven tracks for games, films, and experiential media. Each project begins with a collaborative deep dive to define tone, instrumentation, and the emotional story the music needs to support.</p>
-        <p>Currently working in his studio creating tracks for music libraries, independant artists, and production companies.</p>
-          <ul>
-            <li><strong>Expertise:</strong> Jazz/Funk, Electro Swing</li>
-            <li><strong>Toolbox:</strong> Logic Pro, Native Instruments, M2 Macbook, Adam A7x Monitors, a suite of top tier Virtual Instruments</li>
-            <li><strong>Approach:</strong> Communicative, First Principaled, Deep Context Listening.</li>
-          </ul>
-      </div>
-    </div>
-    <div class="about-columns">
-      <div class="about-options" role="tablist" aria-orientation="vertical">
-        <!-- Active/default tab -->
-        <button class="about-option is-active"
-                role="tab"
-                id="about-option-about"
-                type="button"
-                data-option="about"
-                aria-controls="about-panel-about"
-                aria-selected="true"
-                aria-expanded="true">About</button>
+    </header>
 
-        <button class="about-option"
-                role="tab"
-                id="about-option-origins"
-                type="button"
-                data-option="origins"
-                aria-controls="about-panel-origins"
-                aria-selected="false"
-                aria-expanded="false">Origins</button>
-
-        <button class="about-option"
-                role="tab"
-                id="about-option-schooling"
-                type="button"
-                data-option="schooling"
-                aria-controls="about-panel-schooling"
-                aria-selected="false"
-                aria-expanded="false">Schooling</button>
-
-        <button class="about-option"
-                role="tab"
-                id="about-option-career"
-                type="button"
-                data-option="career"
-                aria-controls="about-panel-career"
-                aria-selected="false"
-                aria-expanded="false">Career</button>
-      </div>
-
-      <div class="about-panels">
-        <!-- Active/default panel -->
-        <div class="about-panel is-active"
-             id="about-panel-about"
-             data-option="about"
-             role="tabpanel"
-             aria-labelledby="about-option-about">
-          <p>Fed-Ex Courier by day, Sound Wrangler by night.</p>
-          <p>Native Texan</p>
-          <p>Keyboardist, Podcast Junkie, Girl-Dad, Husband (9 years)</p>
-
+    <main class="site-main">
+      <section id="intro" class="hero-section">
+        <div class="win95-window hero-window" role="presentation">
+          <div class="window-titlebar" aria-hidden="true">
+            <span class="window-title">samuel.exe</span>
+            <div class="window-controls" aria-hidden="true">
+              <span>_</span>
+              <span>□</span>
+              <span>✕</span>
+            </div>
+          </div>
+          <div class="window-body">
+            <div class="hero-content">
+              <div class="hero-intro">
+                <h1 class="hero-title">Sweet Sammy</h1>
+                <p class="hero-tagline">Crafting vibrant, story-driven tracks for games, film, and experiential media — still rocking the Windows 95 vibe with a modern groove.</p>
+                <div class="hero-actions">
+                  <a class="win95-button" href="#music">▶ Listen now</a>
+                  <a class="win95-button win95-button--ghost" href="#contact">✉ Collaborate</a>
+                </div>
+              </div>
+              <figure class="hero-figure">
+                <img src="assets/img/Face.jpg" alt="Portrait of Samuel Witt" />
+                <figcaption>Based in the USA • Collaborating worldwide</figcaption>
+              </figure>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div class="about-panel"
-             id="about-panel-origins"
-             data-option="origins"
-             role="tabpanel"
-             aria-labelledby="about-option-origins"
-             hidden>
-          Born and directly adopted by two wonderful humans in El Paso, TX.  Father, retired military turned pastor.  Mother, first generation fire-y Korean.
-          <p>Sam learned piano early and was the pianist for his pastors church at age 11.</p>
-          <p>His culture is a mix of Korean-American mixed with Mexican and his diet reflects this.</p>
+      <section id="about" class="content-section about">
+        <div class="win95-window" data-tabbed-window>
+          <div class="window-titlebar" aria-hidden="true">
+            <span class="window-title">about.txt</span>
+            <div class="window-controls" aria-hidden="true">
+              <span>_</span><span>□</span><span>✕</span>
+            </div>
+          </div>
+          <div class="window-body">
+            <h2 id="about-heading">Instrumental Music for Media Composer</h2>
+            <div class="about-hero">
+              <div class="about-portrait">
+                <img src="assets/img/Face.jpg" alt="Portrait of Samuel Witt" />
+                <nav class="about-social" aria-label="Social media">
+                  <ul>
+                    <li><a href="https://www.instagram.com/sweetsammybeats/" target="_blank" rel="noreferrer noopener">Instagram</a></li>
+                    <li><a href="https://www.linkedin.com/in/samuelwitt/" target="_blank" rel="noreferrer noopener">LinkedIn</a></li>
+                  </ul>
+                </nav>
+              </div>
+              <div class="about-blurb">
+                <p>Samuel Witt aka "Sweet Sammy" crafts vibrant, story-driven tracks for games, films, and experiential media. Each project begins with a collaborative deep dive to define tone, instrumentation, and the emotional story the music needs to support.</p>
+                <p>Currently working in his studio creating tracks for music libraries, independent artists, and production companies.</p>
+                <ul>
+                  <li><strong>Expertise:</strong> Jazz/Funk, Electro Swing</li>
+                  <li><strong>Toolbox:</strong> Logic Pro, Native Instruments, M2 MacBook, Adam A7X monitors, and a suite of top-tier virtual instruments</li>
+                  <li><strong>Approach:</strong> Communicative, first-principled, deep-context listening</li>
+                </ul>
+              </div>
+            </div>
+            <div class="about-columns">
+              <div class="about-options" role="tablist" aria-orientation="vertical">
+                <button class="about-option is-active" role="tab" id="about-option-about" type="button" data-option="about" aria-controls="about-panel-about" aria-selected="true" aria-expanded="true">About</button>
+                <button class="about-option" role="tab" id="about-option-origins" type="button" data-option="origins" aria-controls="about-panel-origins" aria-selected="false" aria-expanded="false">Origins</button>
+                <button class="about-option" role="tab" id="about-option-schooling" type="button" data-option="schooling" aria-controls="about-panel-schooling" aria-selected="false" aria-expanded="false">Schooling</button>
+                <button class="about-option" role="tab" id="about-option-career" type="button" data-option="career" aria-controls="about-panel-career" aria-selected="false" aria-expanded="false">Career</button>
+              </div>
+              <div class="about-panels">
+                <div class="about-panel is-active" id="about-panel-about" data-option="about" role="tabpanel" aria-labelledby="about-option-about">
+                  <p>Fed-Ex Courier by day, Sound Wrangler by night.</p>
+                  <p>Native Texan</p>
+                  <p>Keyboardist, Podcast Junkie, Girl-Dad, Husband (9 years)</p>
+                </div>
+                <div class="about-panel" id="about-panel-origins" data-option="origins" role="tabpanel" aria-labelledby="about-option-origins" hidden>
+                  <p>Born and directly adopted by two wonderful humans in El Paso, TX. Father: retired military turned pastor. Mother: first-generation fiery Korean.</p>
+                  <p>Sam learned piano early and was the pianist for his pastor's church at age 11.</p>
+                  <p>His culture is a blend of Korean-American and Mexican traditions, and his diet reflects this.</p>
+                </div>
+                <div class="about-panel" id="about-panel-schooling" data-option="schooling" role="tabpanel" aria-labelledby="about-option-schooling" hidden>
+                  <p>Sam fell in love with electric guitar at age 11 and started composing through high school, winning 2nd and 3rd in national composition competitions in his junior and senior year.</p>
+                  <p>Samuel's university training was completed at the esteemed University of North Texas where he graduated with a degree in Jazz Piano Performance.</p>
+                  <p>He learned arranging, theory, conducting, and honed his gigging chops through school while playing locally and touring abroad.</p>
+                  <p>Being self-taught in music production, Samuel has a firm foundation in recording software and mixing techniques that pair well with his formal music training.</p>
+                  <p>Spirituality has been a source of instruction as Samuel strives to serve the greater good through church music and supporting congregational enlightenment.</p>
+                </div>
+                <div class="about-panel" id="about-panel-career" data-option="career" role="tabpanel" aria-labelledby="about-option-career" hidden>
+                  <p>Samuel has developed his career by being kind, doing good work, and staying on the straight and narrow.</p>
+                  <p>He's forged relationships with production companies and publishers that stand the test of time.</p>
+                  <p>Sam has enjoyed success in the reality TV space, spotting his music in shows he never expected.</p>
+                  <p>Looking forward, Samuel hopes to partner with storytellers who have an excellent message and vision that would benefit from thoughtful music.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div class="about-panel"
-             id="about-panel-schooling"
-             data-option="schooling"
-             role="tabpanel"
-             aria-labelledby="about-option-schooling"
-             hidden>
-          <p>Sam fell in love with electric guitar at age 11 and started composing through highschool, winning 2nd and 3rd in national composition competitions in his junior and senior year.</p>
-          <p>Samuel's university training was completed at the esteemed music school University of North Texas where he graduated with a Degree in Jazz Piano Performance.</p>
-          <p>He learned Arranging, Theory, Conducting, and gigging extensively through his training and environment as he went on to play locally and tour abroad.</p>
-          <p>Being self-taugh in Music Production, Samuel has a firm foundation in recording software and mixing tecniques that pair well with his formal music training.</p>
-          <p>Spirituality has been a source of instruction as Samuel has always strived to serve the greater good through church music and support congregational enlightenments.</p>
+      <section id="music" class="content-section music">
+        <div class="win95-window">
+          <div class="window-titlebar" aria-hidden="true">
+            <span class="window-title">now_playing.wav</span>
+            <div class="window-controls" aria-hidden="true">
+              <span>_</span><span>□</span><span>✕</span>
+            </div>
+          </div>
+          <div class="window-body">
+            <h2 id="music-heading">Featured Music</h2>
+            <article class="music-feature" aria-label="Electro Swing highlights">
+              <figure>
+                <img src="electroswing.png" alt="Electro Swing cover art" />
+              </figure>
+              <p>Placed in collaboration with <a href="https://www.linkedin.com/in/michaelbotzmusic/">Michael Botzaropoulos</a> with Soho Production music. Plays regularly in domestic US and International Promos/TV shows.</p>
+              <div class="music-tracks">
+                <figure>
+                  <figcaption>Jump Up Get Up [Electro Swing]</figcaption>
+                  <audio controls preload="metadata" controlslist="nodownload">
+                    <source src="assets/audio/featured/Jump Up Get Up [ELECTRO SWING].mp3" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </figure>
+                <figure>
+                  <figcaption>Bingo Hall Rave [Electro Swing]</figcaption>
+                  <audio controls preload="metadata" controlslist="nodownload">
+                    <source src="assets/audio/featured/Bingo Hall Rave [ELECTRO SWING].mp3" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </figure>
+              </div>
+            </article>
+            <article class="music-feature" aria-label="Below Deck collection">
+              <figure>
+                <img src="Below Deck (sleek chico, big ocean).png" alt="Below Deck feature cover art" />
+              </figure>
+              <p>In regular rotation with Bunnim Murray productions for background music support.</p>
+              <div class="music-tracks">
+                <figure>
+                  <figcaption>Big Ocean [Afro Pop]</figcaption>
+                  <audio controls preload="metadata" controlslist="nodownload">
+                    <source src="assets/audio/featured/Big Ocean [AFRO POP].mp3" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </figure>
+                <figure>
+                  <figcaption>Sleek Chico [Latin Hip Hop Comedy]</figcaption>
+                  <audio controls preload="metadata" controlslist="nodownload">
+                    <source src="assets/audio/featured/Sleek Chico [LATIN HIP HOP COMEDY].mp3" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </figure>
+              </div>
+            </article>
+            <p>If you like what you hear, please reach out and let me know—it's a great place to start a collaboration.</p>
+          </div>
         </div>
+      </section>
 
-        <div class="about-panel"
-             id="about-panel-career"
-             data-option="career"
-             role="tabpanel"
-             aria-labelledby="about-option-career"
-             hidden>
-          <p>Samuel has developed his career by being kind, doing good work, and staying on the straight and narrow.</p>
-          <p>He's developed releationships with production companies, and publishers that stand the test of time.</p>
-          <p>Sam has enjoyed some success in the Reality TV sector of the music industry as he randomly sees his music being placed in shows he most likely would never watch.</p>
-          <p>Looking forward, Samuel looks to be a musical partner with someone who has an excellent message and vision that would benefit from a thoughtful piece of music to support it.</p>
+      <section id="placements" class="content-section projects">
+        <div class="win95-window">
+          <div class="window-titlebar" aria-hidden="true">
+            <span class="window-title">placements.log</span>
+            <div class="window-controls" aria-hidden="true">
+              <span>_</span><span>□</span><span>✕</span>
+            </div>
+          </div>
+          <div class="window-body">
+            <h2 id="placements-heading">Broadcast Placements</h2>
+            <p>Samuel's cues have landed on international streamers, yacht-ready reality TV, and dramatic docu-series. Recent highlights include:</p>
+            <ul class="projects-list">
+              <li>
+                <strong>Netflix — Down for Love</strong><br>
+                <span>"Let's Go For a Walk" &amp; "Miami Love Affair" (with Michael Botzaropoulos) underscore the show's heartfelt journeys.</span>
+              </li>
+              <li>
+                <strong>Netflix — Stranded with My Mother-in-Law</strong><br>
+                <span>Upbeat cues like "Get First Place" keep the island challenges moving.</span>
+              </li>
+              <li>
+                <strong>Bravo — Below Deck</strong><br>
+                <span>Latin hip-hop flair "Sleek Chico" and Afro-pop cut "Big Ocean" set the tone on the open seas.</span>
+              </li>
+              <li>
+                <strong>TV One — ATL Homicide</strong><br>
+                <span>Cinematic hip-hop track "Urbana Prolific" heightens the show's investigative sequences.</span>
+              </li>
+            </ul>
+          </div>
         </div>
+      </section>
+
+      <section id="publishers" class="content-section publishers">
+        <div class="win95-window">
+          <div class="window-titlebar" aria-hidden="true">
+            <span class="window-title">publishers.ini</span>
+            <div class="window-controls" aria-hidden="true">
+              <span>_</span><span>□</span><span>✕</span>
+            </div>
+          </div>
+          <div class="window-body">
+            <h2 id="publishers-heading">Publishers &amp; Libraries</h2>
+            <p class="publishers-intro">Samuel's catalog is represented by select publishers and curated libraries for sync licensing. Browse the carousel to meet the partners stewarding his work.</p>
+            <div class="publisher-carousel" role="region" aria-label="Publisher partners carousel">
+              <div class="publisher-viewport" tabindex="0" aria-live="polite">
+                <ul class="publisher-track">
+                  <li class="publisher-slide" data-label="Universal Production Music">
+                    <figure>
+                      <img src="assets/img/universal.png" alt="Universal Production Music logo" />
+                      <figcaption>
+                        <h3>Universal Production Music</h3>
+                        <p>Global powerhouse providing worldwide placement opportunities for Samuel's high-energy cues.</p>
+                      </figcaption>
+                    </figure>
+                  </li>
+                  <li class="publisher-slide" data-label="Soho Production Music">
+                    <figure>
+                      <img src="assets/img/soho.png" alt="Soho Production Music logo" />
+                      <figcaption>
+                        <h3>Soho Production Music</h3>
+                        <p>London-based boutique with a focus on stylish grooves and character-rich instrumentals.</p>
+                      </figcaption>
+                    </figure>
+                  </li>
+                  <li class="publisher-slide" data-label="Paint the Noise">
+                    <figure>
+                      <img src="assets/img/paintthenoise.png" alt="Paint the Noise logo" />
+                      <figcaption>
+                        <h3>Paint the Noise</h3>
+                        <p>Indie collective cultivating colorful beats and genre-blending collaborations.</p>
+                      </figcaption>
+                    </figure>
+                  </li>
+                  <li class="publisher-slide" data-label="Evolution Media Music">
+                    <figure>
+                      <img src="assets/img/evolutionmediamusic.png" alt="Evolution Media Music logo" />
+                      <figcaption>
+                        <h3>Evolution Media Music</h3>
+                        <p>Trusted library for broadcast hits, pairing Samuel's hooks with premium series placements.</p>
+                      </figcaption>
+                    </figure>
+                  </li>
+                  <li class="publisher-slide" data-label="Epitome Music Library">
+                    <figure>
+                      <img src="assets/img/epitome.png" alt="Epitome Music Library logo" />
+                      <figcaption>
+                        <h3>Epitome Music Library</h3>
+                        <p>Curators of modern orchestration and hybrid textures ideal for cinematic storytelling.</p>
+                      </figcaption>
+                    </figure>
+                  </li>
+                  <li class="publisher-slide" data-label="Get It Done Music">
+                    <figure>
+                      <img src="assets/img/getitdone.png" alt="Get It Done Music logo" />
+                      <figcaption>
+                        <h3>Get It Done Music</h3>
+                        <p>Agile team delivering fast-turnaround briefs where Samuel's versatility shines.</p>
+                      </figcaption>
+                    </figure>
+                  </li>
+                </ul>
+              </div>
+              <div class="publisher-controls">
+                <button class="publisher-nav" type="button" data-carousel-prev aria-label="Previous publisher">◀</button>
+                <button class="publisher-nav" type="button" data-carousel-next aria-label="Next publisher">▶</button>
+              </div>
+            </div>
+            <p class="publishers-outro">For clearance details or custom requests, reach out via the contact form.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="content-section contact">
+        <div class="win95-window">
+          <div class="window-titlebar" aria-hidden="true">
+            <span class="window-title">contact.cmd</span>
+            <div class="window-controls" aria-hidden="true">
+              <span>_</span><span>□</span><span>✕</span>
+            </div>
+          </div>
+          <div class="window-body">
+            <h2 id="contact-heading">Let's Collaborate</h2>
+            <p>Hi! I'd love to hear from you.</p>
+            <dl>
+              <dt>Email</dt>
+              <dd><a href="mailto:samuelwitt@gmail.com">samuelwitt@gmail.com</a></dd>
+              <dt>Phone</dt>
+              <dd><a href="tel:+19153285420">+1 (915) 328-5420</a></dd>
+              <dt>Studio</dt>
+              <dd>United States of America &mdash; collaborating worldwide.</dd>
+            </dl>
+            <p>Include project scope, timeline, and any reference tracks when reaching out so Samuel can respond with tailored ideas and availability.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="solitaire" class="content-section solitaire-section" data-section="solitaire">
+        <div class="win95-window">
+          <div class="window-titlebar" aria-hidden="true">
+            <span class="window-title">solitaire.exe</span>
+            <div class="window-controls" aria-hidden="true">
+              <span>_</span><span>□</span><span>✕</span>
+            </div>
+          </div>
+          <div class="window-body">
+            <h2>Brain break: Solitaire</h2>
+            <p>Deal a classic Windows 95 hand right in the browser. Double-click the waste pile or drag cards around to play.</p>
+            <section class="solitaire-board" data-role="solitaire">
+              <div class="solitaire-top-row">
+                <div class="pile stock" data-role="stock" data-pile-type="stock" data-index="0" aria-label="Stock" tabindex="0"></div>
+                <div class="pile waste" data-role="waste" data-pile-type="waste" data-index="0" aria-label="Waste" tabindex="0"></div>
+                <div class="foundation-group" data-role="foundations">
+                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="0" aria-label="Foundation 1" tabindex="0"></div>
+                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="1" aria-label="Foundation 2" tabindex="0"></div>
+                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="2" aria-label="Foundation 3" tabindex="0"></div>
+                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="3" aria-label="Foundation 4" tabindex="0"></div>
+                </div>
+              </div>
+              <div class="solitaire-tableau" data-role="tableau">
+                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="0" aria-label="Tableau Pile 1" tabindex="0"></div>
+                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="1" aria-label="Tableau Pile 2" tabindex="0"></div>
+                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="2" aria-label="Tableau Pile 3" tabindex="0"></div>
+                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="3" aria-label="Tableau Pile 4" tabindex="0"></div>
+                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="4" aria-label="Tableau Pile 5" tabindex="0"></div>
+                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="5" aria-label="Tableau Pile 6" tabindex="0"></div>
+                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="6" aria-label="Tableau Pile 7" tabindex="0"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" aria-label="Footer taskbar">
+      <div class="site-footer__inner">
+        <div class="footer-brand">© <span data-year></span> Samuel Witt</div>
+        <div class="footer-clock" data-clock aria-live="polite"></div>
       </div>
-    </div>
-  </section>
-</template>
+    </footer>
+  </div>
 
-
-<template id="tpl-music">
-  <section class="content-section music" aria-labelledby="music-heading">
-    <h2 id="music-heading">Featured Music</h2>
-
-    <article class="music-feature" aria-label="Electro Swing highlights">
-      <figure>
-        <img src="electroswing.png" alt="Electro Swing cover art" />
-      </figure>
-      <p>Placed in collaboration with <a href="https://www.linkedin.com/in/michaelbotzmusic/">Michael Botzaropoulos</a> with SoHo Production music.  Plays regularly in domestic US and International Promos/TV shows. </p>
-      <div class="music-tracks">
-        <figure>
-          <figcaption>Jump Up Get Up [Electro Swing]</figcaption>
-          <audio controls preload="metadata" controlslist="nodownload">
-            <source src="assets/audio/featured/Jump Up Get Up [ELECTRO SWING].mp3" type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-        </figure>
-        <figure>
-          <figcaption>Bingo Hall Rave [Electro Swing]</figcaption>
-          <audio controls preload="metadata" controlslist="nodownload">
-            <source src="assets/audio/featured/Bingo Hall Rave [ELECTRO SWING].mp3" type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-        </figure>
-      </div>
-    </article>
-
-    <article class="music-feature" aria-label="Below Deck collection">
-      <figure>
-        <img src="Below Deck (sleek chico, big ocean).png" alt="Below Deck feature cover art" />
-      </figure>
-      <p>In regular rotation with Bunnim Murray productions for background music support.</p>
-      <div class="music-tracks">
-        <figure>
-          <figcaption>Big Ocean [Afro Pop]</figcaption>
-          <audio controls preload="metadata" controlslist="nodownload">
-            <source src="assets/audio/featured/Big Ocean [AFRO POP].mp3" type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-        </figure>
-        <figure>
-          <figcaption>Sleek Chico [Latin Hip Hop Comedy]</figcaption>
-          <audio controls preload="metadata" controlslist="nodownload">
-            <source src="assets/audio/featured/Sleek Chico [LATIN HIP HOP COMEDY].mp3" type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-        </figure>
-      </div>
-    </article>
-
-    <p>If you like what you hear, please contact me and let me know! This is a great place to start. :p</p>
-  </section>
-</template>
-
-<template id="tpl-publishers">
-  <section class="content-section publishers" aria-labelledby="publishers-heading">
-    <h2 id="publishers-heading">Publishers &amp; Libraries</h2>
-    <p class="publishers-intro">Samuel&apos;s catalog is represented by select publishers and curated libraries for sync licensing. Browse the carousel to meet the partners stewarding his work.</p>
-    <div class="publisher-carousel" role="region" aria-label="Publisher partners carousel">
-      <div class="publisher-viewport" tabindex="0" aria-live="polite">
-        <ul class="publisher-track">
-          <li class="publisher-slide" data-label="Universal Production Music">
-            <figure>
-              <img src="assets/img/universal.png" alt="Universal Production Music logo" />
-              <figcaption>
-                <h3>Universal Production Music</h3>
-                <p>Global powerhouse providing worldwide placement opportunities for Samuel&apos;s high-energy cues.</p>
-              </figcaption>
-            </figure>
-          </li>
-          <li class="publisher-slide" data-label="Soho Production Music">
-            <figure>
-              <img src="assets/img/soho.png" alt="Soho Production Music logo" />
-              <figcaption>
-                <h3>Soho Production Music</h3>
-                <p>London-based boutique with a focus on stylish grooves and character-rich instrumentals.</p>
-              </figcaption>
-            </figure>
-          </li>
-          <li class="publisher-slide" data-label="Paint the Noise">
-            <figure>
-              <img src="assets/img/paintthenoise.png" alt="Paint the Noise logo" />
-              <figcaption>
-                <h3>Paint the Noise</h3>
-                <p>Indie collective cultivating colorful beats and genre-blending collaborations.</p>
-              </figcaption>
-            </figure>
-          </li>
-          <li class="publisher-slide" data-label="Evolution Media Music">
-            <figure>
-              <img src="assets/img/evolutionmediamusic.png" alt="Evolution Media Music logo" />
-              <figcaption>
-                <h3>Evolution Media Music</h3>
-                <p>Trusted library for broadcast hits, pairing Samuel&apos;s hooks with premium series placements.</p>
-              </figcaption>
-            </figure>
-          </li>
-          <li class="publisher-slide" data-label="Epitome Music Library">
-            <figure>
-              <img src="assets/img/epitome.png" alt="Epitome Music Library logo" />
-              <figcaption>
-                <h3>Epitome Music Library</h3>
-                <p>Curators of modern orchestration and hybrid textures ideal for cinematic storytelling.</p>
-              </figcaption>
-            </figure>
-          </li>
-          <li class="publisher-slide" data-label="Get It Done Music">
-            <figure>
-              <img src="assets/img/getitdone.png" alt="Get It Done Music logo" />
-              <figcaption>
-                <h3>Get It Done Music</h3>
-                <p>Agile team delivering fast-turnaround briefs where Samuel&apos;s versatility shines.</p>
-              </figcaption>
-            </figure>
-          </li>
-        </ul>
-      </div>
-      <div class="publisher-controls">
-        <button class="publisher-nav" type="button" data-carousel-prev aria-label="Previous publisher">◀</button>
-        <button class="publisher-nav" type="button" data-carousel-next aria-label="Next publisher">▶</button>
-      </div>
-    </div>
-    <p class="publishers-outro">For clearance details or custom requests, reach out via the contact window.</p>
-  </section>
-</template>
-
-<template id="tpl-projects">
-  <section class="content-section projects" aria-labelledby="projects-heading">
-    <h2 id="projects-heading">Broadcast Placements</h2>
-    <div class="placements-list">
-      <article class="placements-card">
-          <h3 class="placements-title">Peacock — Love Island USA</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image"
-                   src="assets/img/Love Island.png"
-                   alt="Love Island USA key art representing placements for Love Island USA, Tyler Perry’s Sistas, and All The Queen’s Men." />
-               <img class="placements-image"
-                   src="assets/img/SISTAS_S8_VERT_KEYART_2x3_CLEAN_NO_TAG.jpg"
-                   alt="" />
-              <img class="placements-image"
-                   src="assets/img/BET_ATQM_S4B_KEY_ART_PRIMARY_SOCIAL_16x9_CLEAN.jpg"
-                   alt="" />
-              <!-- figcaption intentionally removed to avoid visible captions -->
-            </figure>
-
-            <div class="placements-copy">
-              <p class="placements-blurb">
-                Samuel has worked alongside local Austin, TX artist App Juke on a versatile hip-hop track that gets placed in shows like Peacock’s <em>Love Island USA</em> alongside BET’s signature dramas
-                <em>Tyler Perry’s Sistas</em> and <em>All The Queen’s Men</em>.
-              </p>
-
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description">
-                    Love Island USA, Tyler Perry's Sistas, & All The Queen's Men — “Hands to the Ceiling" <a href="https://open.spotify.com/artist/0MYXZj6iRQ6KRKftlMlD9j">(feat. App Juke)</a>
-                  </span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/handstotheceiling.mp3">
-                    Listen to the track “Hands to the Ceiling” featured in Love Island USA, Tyler Perry's Sistas & All The Queen's Men.  Represented by Evolution Media Music
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="placements-card">
-          <h3 class="placements-title">MTV — The Challenge</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image" src="assets/img/challenge_xlg.jpg" alt="The Challenge key art with competitors poised for action." />
-            </figure>
-            <div class="placements-copy">
-              <p class="placements-blurb">Samuel's track "Drawing Conclusions" [RETRO ELECTRONICA] has been featured in MTV's "The Challenge" during a prominent characters introduction scene.</p>
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description">The Challenge — “Drawing Conclusions” character indroduction scene.</span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/drawingconclusions.mp3">
-                    Listen to the track “Drawing Conclusions” featured in MTV's The Challenge representation by Universal Production Music
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="placements-card">
-          <h3 class="placements-title">MTV — Jersey Shore Family Vacation</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image" src="assets/img/jersey_shore_family_vacation_xlg.jpg" alt="Jersey Shore Family Vacation cast posing in matching track suits." />
-            </figure>
-            <div class="placements-copy">
-              <p class="placements-blurb"></p>
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description">Jersey Shore Family Vacation — “All In Together Now” [HYPE HIP-HOP] boardwalk bash cue</span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/allintogethernow.mp3">
-                    Listen to the track “All In Together Now” placed in Jersey Shore Family Vacation featuring <a href="https://www.instagram.com/badluckbop/">(feat. Bad Luck Bop)</a> on vocals.  Representation by Get It Done music.
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="placements-card">
-          <h3 class="placements-title">MTV — RuPaul&apos;s Drag Race</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image" src="assets/img/rupauls_drag_race_xlg.jpg" alt="RuPaul in a sparkling gown flanked by Drag Race contestants." />
-            </figure>
-            <div class="placements-copy">
-              <p class="placements-blurb">Samuel wrote this track with help from <a href="https://www.linkedin.com/in/michaelbotzmusic/">Michael Botzaropoulos</a> with arrangement and getting it signed.</p>
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description">RuPaul&apos;s Drag Race — “Carried Away” [ELECTRO SWING] Suzie Toot reveal</span>
-                    <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/carriedaway.mp3">
-                    Listen to the track “Carried Away” placed in RuPaul&apos;s Drag Race represented by Soho Production Music.
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="placements-card">
-          <h3 class="placements-title">Netflix — Somebody Feed Phil</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image" src="assets/img/Somebody Feed Phil.png" alt="Somebody Feed Phil poster featuring Phil Rosenthal holding chopsticks." />
-            </figure>
-            <div class="placements-copy">
-              <p class="placements-blurb">Samuel recorded this track with his wife <a href="https://www.amelialove.com">Amelia Love</a> also in collaboration with <a href="https://www.linkedin.com/in/michaelbotzmusic/">Michael Botzaropoulos</a></p>
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description">"Little Bird" [ELECTRO SWING] was featured in the blooper reel during the credits</span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/littlebird.mp3">
-                    Listen to the track “Little Bird” <a href="https://open.spotify.com/artist/7N1jmGPGXctMkf4yUUdN3y?si=Nkg-aP1LR-aZzSn3xdpLzQ">(feat. Amelia Love)</a> placed in RuPaul&apos;s Drag Race.
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="placements-card">
-          <h3 class="placements-title">Netflix — Stranded with My Mother-in-Law</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image" src="assets/img/Stranded with my Mother in Law.png" alt="Stranded with My Mother-in-Law poster showing couples on a tropical shore." />
-            </figure>
-            <div class="placements-copy">
-              <p class="placements-blurb">"Get First Place" [HYPE HIP-HOP] was featured in a winner reveal scene in Netflix's "Stranded with My Mother-in-Law".</p>
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description"></span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/getfirstplace.mp3">
-                    Listen to the track “Get First Place” <a href="https://www.instagram.com/p/DLnNYZwOUo-/">(feat. No Trace)</a> in Stranded with My Mother-in-Law.
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="placements-card">
-          <h3 class="placements-title">Bravo — Below Deck</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image" src="assets/img/Below Deck.png" alt="Below Deck cast standing on the deck of a luxury yacht." />
-            </figure>
-            <div class="placements-copy">
-              <p class="placements-blurb"></p>
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description">Below Deck — “Sleek Chico” [LATIN HIP-HOP COMEDY]</span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/sleekchico.mp3">
-                    Listen to Sam's track “Sleek Chico” featured in Bravo&apos;s Below Deck represented by Paint The Noise in collaboration with Universal Production Music.
-                  </audio>
-                </li>
-                <li>
-                  <span class="placements-track-description">Below Deck — “Big Ocean” [AFRO POP] open-water montage cue</span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/bigocean.mp3">
-                    Listen to Sam's track “Big Ocean” featured in Bravo&apos;s Below Deck represented by Paint The Noise in collaboration with Universal Production Music.
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="placements-card">
-          <h3 class="placements-title">TV One — ATL Homicide</h3>
-          <div class="placements-details">
-            <figure class="placements-figure">
-              <img class="placements-image" src="assets/img/ATL Homicide.png" alt="ATL Homicide detectives posed in front of the Atlanta skyline." />
-            </figure>
-            <div class="placements-copy">
-              <p class="placements-blurb">"Urbana Prolific" [CINEMATIC HIP-HOP] was featured in ATL Homicide.</p>
-              <ul class="placements-tracks">
-                <li>
-                  <span class="placements-track-description">ATL Homicide — “Urbana Prolific” case file montage cue</span>
-                  <audio controls preload="metadata" controlsList="nodownload" src="assets/audio/urbanaprolific.mp3">
-                    Listen to the track “Urbana Prolific” featured in ATL Homicide respresented by Epitome Music.
-                  </audio>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </article>
-    </div>
-  </section>
-</template>
-
-<template id="tpl-contact">
-  <section class="content-section contact" aria-labelledby="contact-heading">
-    <h2 id="contact-heading">Let&apos;s Collaborate</h2>
-    <p>Hi!  I'de love to hear from YOU.</p>
-    <dl>
-      <dt>Email</dt>
-      <dd><a href="mailto:samuelwitt@gmail.com">samuelwitt@gmail.com</a></dd>
-      <dt>Phone</dt>
-      <dd><a href="tel:+19153285420">+1 (915) 328-5420</a></dd>
-      <dt>Studio</dt>
-      <dd>United States of America &mdash; collaborating worldwide.</dd>
-    </dl>
-    <p>Include project scope, timeline, and any reference tracks when reaching out so Samuel can respond with tailored ideas and availability, pleeeease.</p>
-  </section>
-</template>
-
-<template id="tpl-solitaire">
-  <section class="solitaire-board" data-role="solitaire">
-    <div class="solitaire-top-row">
-      <div class="pile stock" data-role="stock" data-pile-type="stock" data-index="0" aria-label="Stock" tabindex="0"></div>
-      <div class="pile waste" data-role="waste" data-pile-type="waste" data-index="0" aria-label="Waste" tabindex="0"></div>
-      <div class="foundation-group" data-role="foundations">
-        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="0" aria-label="Foundation 1" tabindex="0"></div>
-        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="1" aria-label="Foundation 2" tabindex="0"></div>
-        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="2" aria-label="Foundation 3" tabindex="0"></div>
-        <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="3" aria-label="Foundation 4" tabindex="0"></div>
-      </div>
-    </div>
-    <div class="solitaire-tableau" data-role="tableau">
-      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="0" aria-label="Tableau Pile 1" tabindex="0"></div>
-      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="1" aria-label="Tableau Pile 2" tabindex="0"></div>
-      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="2" aria-label="Tableau Pile 3" tabindex="0"></div>
-      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="3" aria-label="Tableau Pile 4" tabindex="0"></div>
-      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="4" aria-label="Tableau Pile 5" tabindex="0"></div>
-      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="5" aria-label="Tableau Pile 6" tabindex="0"></div>
-      <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="6" aria-label="Tableau Pile 7" tabindex="0"></div>
-    </div>
-  </section>
-</template>
-
-
-<script src="script.js" defer></script>
-<script src="solitaire.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="solitaire.js" defer></script>
 </body>
 </html>
