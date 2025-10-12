@@ -144,6 +144,8 @@
         card.element.classList.toggle('is-face-up', card.faceUp);
         card.element.classList.toggle('is-face-down', !card.faceUp);
         card.element.dataset.face = card.faceUp ? 'up' : 'down';
+        card.element.dataset.color = card.color;
+        card.element.dataset.suit = card.suit;
         const label = card.element.querySelector('.card-label');
         if(label){
           label.textContent = card.faceUp ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : '';
@@ -474,6 +476,9 @@
       if(!dragState) return;
       const normalized = normalizePointerLikeEvent(e, dragState.pointerId);
       if(!normalized) return;
+      if(normalized.pointerType === 'touch'){
+        normalized.originalEvent?.preventDefault?.();
+      }
       handleDragMove(normalized);
     }
 
@@ -568,8 +573,6 @@
         }
       }
 
-      const listenersTarget = captureActive ? card.element : window;
-
       dragState = {
         pointerId: normalized.pointerId,
         pointerType: normalized.pointerType,
@@ -589,9 +592,13 @@
       updateGhostPosition(dragState, normalized.clientX, normalized.clientY);
 
       if(isPointerEvent){
-        registerListener(listenersTarget, 'pointermove', onPointerMove);
-        registerListener(listenersTarget, 'pointerup', onPointerUp);
-        registerListener(listenersTarget, 'pointercancel', onPointerCancel);
+        const pointerTargets = captureActive ? [card.element] : [window, document];
+        const pointerMoveOptions = normalized.pointerType === 'touch' ? { passive: false } : undefined;
+        pointerTargets.forEach(target => {
+          registerListener(target, 'pointermove', onPointerMove, pointerMoveOptions);
+          registerListener(target, 'pointerup', onPointerUp);
+          registerListener(target, 'pointercancel', onPointerCancel);
+        });
       } else if(normalized.pointerType === 'mouse'){
         registerListener(window, 'mousemove', onMouseMove);
         registerListener(window, 'mouseup', onMouseUp);
