@@ -1,4 +1,5 @@
 (function () {
+  // ===== NAVIGATION TOGGLE =====
   const navToggle = document.querySelector('[data-nav-toggle]');
   const siteNav = document.querySelector('.site-nav');
   if (navToggle && siteNav) {
@@ -18,6 +19,7 @@
     });
   }
 
+  // ===== TABBED WINDOWS =====
   function initTabbedWindow(root, selectors) {
     if (!root || !selectors) return;
     const { optionSelector, panelSelector } = selectors;
@@ -73,6 +75,7 @@
     });
   }
 
+  // ===== PUBLISHERS CAROUSEL =====
   function initPublishersCarousel(section) {
     if (!section) return;
     const viewport = section.querySelector('.publisher-viewport');
@@ -81,7 +84,6 @@
     if (!viewport || (!prev && !next)) return;
 
     const scrollAmount = () => viewport.clientWidth * 0.8;
-
     const scrollByAmount = (direction) => {
       viewport.scrollBy({ left: scrollAmount() * direction, behavior: 'smooth' });
     };
@@ -100,6 +102,7 @@
     });
   }
 
+  // ===== FOOTER CLOCK =====
   function initFooterClock() {
     const clock = document.querySelector('[data-clock]');
     if (!clock) return;
@@ -114,12 +117,14 @@
     setInterval(render, 30_000);
   }
 
+  // ===== FOOTER YEAR =====
   function initFooterYear() {
     const yearEl = document.querySelector('[data-year]');
     if (!yearEl) return;
     yearEl.textContent = String(new Date().getFullYear());
   }
 
+  // ===== DOM READY INITIALIZATION =====
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-tabbed-window]').forEach((windowEl) => {
       initTabbedWindow(windowEl, {
@@ -128,7 +133,7 @@
       });
     });
 
-    initPublishersCarousel(document.querySelector('.publisher-carousel'));
+    initPublishersCarousel(document.querySelector('.publishers'));
     initFooterClock();
     initFooterYear();
 
