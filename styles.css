@@ -416,6 +416,19 @@ section[id] { scroll-margin-top: 90px; }
 .content-section.contact dd { margin: 0; }
 
 /* Solitaire (detailed) */
+/* Make touch dragging work smoothly on mobile (prevents page scroll during drag) */
+.solitaire-section .solitaire-board,
+.solitaire-section .pile,
+.solitaire-section .solitaire-card {
+  touch-action: none;           /* modern touch browsers */
+  -webkit-user-select: none;    /* iOS Safari */
+  user-select: none;
+}
+
+.solitaire-section .solitaire-board {
+  overscroll-behavior: contain; /* avoid rubber-band/page swipe during drag */
+}
+
 .solitaire-board {
   --card-width: 88px;
   --card-height: 124px;
