@@ -1,3 +1,62 @@
+/* --- Touch-to-mouse shim for mobile dragging --- */
+(function () {
+  const area = document.querySelector('[data-role="solitaire"]') || document;
+  if (!area) return;
+
+  const active = new Map(); // touch identifier -> target element
+
+  function dispatchMouse(type, touch, fallbackTarget) {
+    const target =
+      fallbackTarget ||
+      document.elementFromPoint(touch.clientX, touch.clientY) ||
+      document.body;
+
+    const evt = new MouseEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      screenX: touch.screenX,
+      screenY: touch.screenY,
+      buttons: type === 'mouseup' ? 0 : 1
+    });
+
+    target.dispatchEvent(evt);
+  }
+
+  function onTouchStart(e) {
+    // Only translate the first touch for classic drag logic
+    const t = e.touches[0];
+    if (!t) return;
+    active.set(t.identifier, e.target);
+    dispatchMouse('mousedown', t, e.target);
+    // Prevent the page from scrolling while dragging
+    e.preventDefault();
+  }
+
+  function onTouchMove(e) {
+    // Move all active touches (usually just one)
+    for (const t of e.touches) {
+      const target = active.get(t.identifier);
+      dispatchMouse('mousemove', t, target);
+    }
+    e.preventDefault();
+  }
+
+  function onTouchEnd(e) {
+    for (const t of e.changedTouches) {
+      const target = active.get(t.identifier);
+      dispatchMouse('mouseup', t, target);
+      active.delete(t.identifier);
+    }
+    e.preventDefault();
+  }
+
+  area.addEventListener('touchstart', onTouchStart, { passive: false });
+  area.addEventListener('touchmove', onTouchMove, { passive: false });
+  area.addEventListener('touchend', onTouchEnd, { passive: false });
+  area.addEventListener('touchcancel', onTouchEnd, { passive: false });
+})();
 (function(){
   const SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
   const SUIT_SYMBOLS = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
