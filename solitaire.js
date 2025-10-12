@@ -144,6 +144,8 @@
         card.element.classList.toggle('is-face-up', card.faceUp);
         card.element.classList.toggle('is-face-down', !card.faceUp);
         card.element.dataset.face = card.faceUp ? 'up' : 'down';
+        card.element.dataset.color = card.color;
+        card.element.dataset.suit = card.suit;
         const label = card.element.querySelector('.card-label');
         if(label){
           label.textContent = card.faceUp ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : '';
