@@ -32,7 +32,7 @@
             <li><a href="#placements">Placements</a></li>
             <li><a href="#publishers">Publishers</a></li>
             <li><a href="#contact">Contact</a></li>
-            <li><a href="#solitaire">Solitaire</a></li>
+            <li><a href="#brickbreaker">Brick Breaker</a></li>
           </ul>
         </nav>
       </div>
@@ -487,38 +487,27 @@
         </div>
       </section>
 
-      <section id="solitaire" class="content-section solitaire-section" data-section="solitaire">
+      <section id="brickbreaker" class="content-section brickbreaker-section" data-section="brickbreaker">
         <div class="win95-window">
           <div class="window-titlebar" aria-hidden="true">
-            <span class="window-title">solitaire.exe</span>
+            <span class="window-title">brickbreaker.exe</span>
             <div class="window-controls" aria-hidden="true">
               <span>_</span><span>□</span><span>✕</span>
             </div>
           </div>
           <div class="window-body">
-            <h2>Brain break: Solitaire</h2>
-            <p>Deal a classic Windows 95 hand right in the browser. Double-click the waste pile or drag cards around to play.</p>
-            <section class="solitaire-board" data-role="solitaire">
-              <div class="solitaire-top-row">
-                <div class="pile stock" data-role="stock" data-pile-type="stock" data-index="0" aria-label="Stock" tabindex="0"></div>
-                <div class="pile waste" data-role="waste" data-pile-type="waste" data-index="0" aria-label="Waste" tabindex="0"></div>
-                <div class="foundation-group" data-role="foundations">
-                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="0" aria-label="Foundation 1" tabindex="0"></div>
-                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="1" aria-label="Foundation 2" tabindex="0"></div>
-                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="2" aria-label="Foundation 3" tabindex="0"></div>
-                  <div class="pile foundation" data-role="foundation" data-pile-type="foundation" data-index="3" aria-label="Foundation 4" tabindex="0"></div>
-                </div>
+            <h2>Brain break: Brick Breaker Jam</h2>
+            <p>Use the arrow keys or move your mouse to guide the paddle, keep the beat alive, and clear the pastel bricks. Every rebound plays a note, so slide the paddle like a keyboard to improvise while you smash!</p>
+            <div class="brickbreaker-board" data-role="brickbreaker">
+              <div class="brickbreaker-hud" role="status" aria-live="polite">
+                <span>Score: <span data-role="score">0</span></span>
+                <span>Lives: <span data-role="lives">3</span></span>
+                <span>Level: <span data-role="level">1</span></span>
+                <button class="win95-button" type="button" data-action="restart">Restart</button>
               </div>
-              <div class="solitaire-tableau" data-role="tableau">
-                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="0" aria-label="Tableau Pile 1" tabindex="0"></div>
-                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="1" aria-label="Tableau Pile 2" tabindex="0"></div>
-                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="2" aria-label="Tableau Pile 3" tabindex="0"></div>
-                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="3" aria-label="Tableau Pile 4" tabindex="0"></div>
-                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="4" aria-label="Tableau Pile 5" tabindex="0"></div>
-                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="5" aria-label="Tableau Pile 6" tabindex="0"></div>
-                <div class="pile tableau" data-role="tableau" data-pile-type="tableau" data-index="6" aria-label="Tableau Pile 7" tabindex="0"></div>
-              </div>
-            </section>
+              <canvas class="brickbreaker-canvas" data-role="brickbreaker-canvas" width="640" height="420" aria-label="Brick breaker game area" role="img"></canvas>
+              <p class="brickbreaker-instructions">Tip: the farther left the rebound, the lower the piano-style note. Slide to the right for higher tones and chain colorful explosions for the best light show.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -533,6 +522,6 @@
   </div>
 
   <script src="script.js" defer></script>
-  <script src="solitaire.js" defer></script>
+  <script src="brickbreaker.js" defer></script>
 </body>
 </html>

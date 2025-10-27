@@ -137,9 +137,9 @@
     initFooterClock();
     initFooterYear();
 
-    const solitaireWin = document.querySelector('#solitaire .win95-window');
-    if (typeof window.initSolitaireWindow === 'function' && solitaireWin) {
-      window.initSolitaireWindow(solitaireWin);
+    const brickbreakerWin = document.querySelector('#brickbreaker .win95-window');
+    if (typeof window.initBrickbreakerWindow === 'function' && brickbreakerWin) {
+      window.initBrickbreakerWindow(brickbreakerWin);
     }
   });
 })();
